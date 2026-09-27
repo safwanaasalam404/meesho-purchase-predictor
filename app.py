@@ -79,7 +79,7 @@ st.markdown(
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["Prediction", "Team", "Model Performance"],
+    ["Prediction", "Home", "Dataset Overview", "Team", "Model Performance"],
 )
 
 # ==================================================================
@@ -237,6 +237,65 @@ Model Used: Logistic Regression
             data=report,
             file_name="meesho_prediction_report.txt",
             mime="text/plain",
+        )
+
+# ==================================================================
+# PAGE: HOME
+# ==================================================================
+elif page == "Home":
+    st.markdown('<h3 style="color:#7B2CBF;">🏠 Home</h3>', unsafe_allow_html=True)
+    st.write(
+        "Welcome! This app predicts whether a Meesho customer is likely to make a "
+        "purchase, based on their browsing behavior and account activity."
+    )
+
+    st.markdown("#### How it works")
+    st.markdown(
+        """
+1. Head to the **Prediction** tab and enter a customer's details (age, device, browsing activity, etc.)
+2. Click **Predict Purchase** — the model returns a Likely/Unlikely result with a confidence score
+3. Download a report of that prediction if you want to keep a record
+        """
+    )
+
+    st.markdown("#### About the model")
+    st.write(
+        "The prediction is powered by a Logistic Regression model, chosen after comparing "
+        "it against Decision Tree, Random Forest, and KNN classifiers. See the "
+        "**Model Performance** tab for the full comparison, or **Dataset Overview** "
+        "for details on the data it was trained on."
+    )
+
+# ==================================================================
+# PAGE: DATASET OVERVIEW
+# Loads the raw CSV separately from the .pkl files (the pkl files only hold
+# the TRAINED model/scaler/encoders, not the original data).
+# Wrapped in try/except so a missing file shows a friendly message instead
+# of crashing the whole app.
+# ==================================================================
+elif page == "Dataset Overview":
+    st.markdown('<h3 style="color:#7B2CBF;">📊 Dataset Overview</h3>', unsafe_allow_html=True)
+    try:
+        overview_df = pd.read_csv("balanced dataset.csv")
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Rows", overview_df.shape[0])
+        with col2:
+            st.metric("Columns", overview_df.shape[1])
+        with col3:
+            st.metric("Categorical Features", 6)
+
+        st.markdown("#### Preview")
+        st.dataframe(overview_df.head(10), use_container_width=True)
+
+        st.markdown("#### Column Names")
+        st.write(list(overview_df.columns))
+
+    except FileNotFoundError:
+        st.warning(
+            "Dataset file not found. To enable this page, place "
+            "`balanced dataset.csv` in the same folder as `app.py`."
         )
 
 # ==================================================================
